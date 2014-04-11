@@ -23,7 +23,7 @@ void read_world(char* filename){
 	if (fp == NULL) {
 		fprintf(stderr, "file not found [%s]\n", filename);
 		exit(1);
-	}	
+	}
 	fgets(buffer, MAXBUF, fp);
 	printf("%s", buffer);
 	world_size = atoi(strtok(buffer, " "));
@@ -31,7 +31,7 @@ void read_world(char* filename){
 	D2 = atoi(strtok(NULL, " "));
 	L1 = atoi(strtok(NULL, " "));
 	L2 = atoi(strtok(NULL, " "));
-	num_of_steps = atoi(strtok(NULL, " "));		
+	num_of_steps = atoi(strtok(NULL, " "));
 	array1 = (int ***)malloc(world_size*sizeof(int**));
 	array2 = (int ***)malloc(world_size*sizeof(int**));
 
@@ -47,23 +47,23 @@ void read_world(char* filename){
 			array2[i][j] = (int *)malloc(world_size*sizeof(int));
 		}
 
-	}		
+	}
 	//Initial state initialization
 	for (i = 0; i < world_size; i++)
 	{
 		for (j = 0; j < world_size; j++)
 		{
-			fgets(buffer,world_size*2, fp);
+			fgets(buffer, MAXBUF, fp);
 			value = atoi(strtok(buffer, " "));
 			for (k = 0; k < world_size; k++)
 			{
 				array1[i][j][k] = value;
 				array2[i][j][k] = value;
 				value = atoi(strtok(NULL, " "));
-				
+
 			}
 		}
-	}	
+	}
 	fclose(fp);
 }
 
@@ -72,28 +72,28 @@ finds number of living neighbors for cell at x,y,z position
 */
 int check_next_generation(int x, int y, int z, int ***array){
 	int i, j, k;
-	int counter = 0;	
-	for (i = x-1; i <= x+1; i++)
+	int counter = 0;
+	for (i = x - 1; i <= x + 1; i++)
 	{
 		if (i < 0 || i > world_size - 1){
 			continue;
 		}
-		for (j = y-1; j <= y+1; j++)
+		for (j = y - 1; j <= y + 1; j++)
 		{
 			if (j < 0 || j > world_size - 1){
 				continue;
 			}
-			for (k = z-1; k <= z+1; k++)
+			for (k = z - 1; k <= z + 1; k++)
 			{
 				if (k < 0 || k > world_size - 1){
 					continue;
-				}			
+				}
 				if (array[i][j][k] == 1){
 					counter++;
 				}
 			}
 		}
-	}	
+	}
 	return counter;
 }
 
@@ -107,14 +107,14 @@ void next_state(int ***array1, int ***array2){
 	{
 		for (j = 0; j < world_size; j++)
 		{
-			for (k= 0; k < world_size; k++)
+			for (k = 0; k < world_size; k++)
 			{
 				living_neighbors = check_next_generation(i, j, k, array1);
-			//	printf("%d for %s\n", living_neighbors, array[i][j][k].current_value == 0 ? "dead" : "living");
-				if (array1[i][j][k] == 0){					
+				//	printf("%d for %s\n", living_neighbors, array[i][j][k].current_value == 0 ? "dead" : "living");
+				if (array1[i][j][k] == 0){
 					if (L1 < living_neighbors && living_neighbors < L2){
 						array2[i][j][k] = 1;
-					}					
+					}
 					else{
 						array2[i][j][k] = 0;
 					}
@@ -123,12 +123,12 @@ void next_state(int ***array1, int ***array2){
 					living_neighbors--; //we also counted current living cell
 					if (living_neighbors < D1 || living_neighbors > D2){
 						array2[i][j][k] = 0;
-					}					
+					}
 					else{
 						array2[i][j][k] = 1;
 					}
 				}
-				
+
 			}
 		}
 	}
@@ -165,31 +165,30 @@ void print_matricies(){
 }
 
 int main(void) {
-  int l;
+	int l;
 	double time;
-	struct timeval lt, ll;
+  struct timeval lt, ll;
 
 	/* allocate memory and read input data */
-  read_world("input.life");	
+	read_world("input.life");
 	/* set timer */
-	gettimeofday(&lt, NULL);
+  gettimeofday(&lt, NULL);
 
 	/* core part */
-	for ( l = 0; l < num_of_steps; l++)
+	for (l = 0; l < num_of_steps; l++)
 	{
 		if (l % 2 == 0){
 			next_state(array1, array2);
 		}
 		else{
 			next_state(array2, array1);
-		}		
+		}
 	}
 
 	/* set timer and print measured time*/
 	gettimeofday(&ll, NULL);
 	time = (double)(ll.tv_sec - lt.tv_sec) + (double)(ll.tv_usec - lt.tv_usec) / 1000000.0;
-	fprintf (stderr, "Time : %.6lf\n", time);
-
+	fprintf(stderr, "Time : %.6lf\n", time);
 	/* write output file */
 
 	return 0;
