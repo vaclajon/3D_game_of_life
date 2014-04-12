@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
 	if(argc>2){
     //filename as argument		
 		if(strncmp(argv[2], "-f",6) == 0){
-			open_file(argv[3], output);
+			open_file(argv[3], *output);
 		}
 		else{
     
@@ -49,11 +49,12 @@ int main(int argc, char *argv[]){
 	}
 	else{   
 		printf("Using default file name [%s]\n", FILENAME);
-		open_file(FILENAME, output);
+		open_file(FILENAME, *output);
 	}
-  //make random and write to file	
+  //make random and write to fil
+printf("%d \n", N);
 	for(i = 0; i < N ;i++){
-    list[i] = rand();
+		list[i] = rand();
 		fprintf(output,"%d\n",list[i]);
 	}
 	exit(0);
