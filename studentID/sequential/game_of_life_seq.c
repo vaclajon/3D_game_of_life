@@ -15,16 +15,11 @@ int ***array1;
 int ***array2;
 
 
-void read_world(char* filename){
-	FILE *fp;
+void read_world(){
 	char buffer[MAXBUF];
 	int i, j, k, value;
-	fp = fopen(filename, "rt");
-	if (fp == NULL) {
-		fprintf(stderr, "file not found [%s]\n", filename);
-		exit(1);
-	}
-	fgets(buffer, MAXBUF, fp);
+
+	fgets(buffer, MAXBUF, stdin);
 	printf("%s", buffer);
 	world_size = atoi(strtok(buffer, " "));
 	D1 = atoi(strtok(NULL, " "));
@@ -53,7 +48,7 @@ void read_world(char* filename){
 	{
 		for (j = 0; j < world_size; j++)
 		{
-			fgets(buffer, MAXBUF, fp);
+			fgets(buffer, MAXBUF, stdin);
 			value = atoi(strtok(buffer, " "));
 			for (k = 0; k < world_size; k++)
 			{
@@ -63,9 +58,8 @@ void read_world(char* filename){
 
 			}
 		}
+	}	
 	}
-	fclose(fp);
-}
 
 /*
 finds number of living neighbors for cell at x,y,z position
@@ -170,7 +164,7 @@ int main(void) {
   struct timeval lt, ll;
 
 	/* allocate memory and read input data */
-	read_world("input.life");
+	read_world();
 	/* set timer */
   gettimeofday(&lt, NULL);
 
