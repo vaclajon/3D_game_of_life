@@ -3,28 +3,32 @@
 #include <string.h>
 #include <stdio.h>
 
-#define FILENAME "random.txt"
+
 
 void print_help(){
     printf("some help\n");
 		exit(0);
 }
 
-
-void open_file(char *filename, FILE *file){
-      file=fopen(filename, "w");
-      if(file == NULL){
-        printf("Error opening file [%s]", filename);
-        exit(1);
-      }
-      
+void save_to_file(int *array[], char *filename, int N){
+  FILE *output;
+  int i;
+  file=fopen(filename, "w");
+  if(file == NULL){
+    printf("Error opening file [%s]", filename);
+    exit(1);
+  }
+  for ( i = 0; i<N;i++){
+    fprintf(output,"%d\n",array[i]);
+  }
 }
+
 int main(int argc, char *argv[]){
 	srand(time(NULL));
 	int N;
 	int list[N];
 	int i;
-	FILE *output;
+  char *filename = "random.txt";	
   
   //-h as argument
 	if(strncmp(argv[1], "-h",6) == 0){
@@ -37,25 +41,19 @@ int main(int argc, char *argv[]){
 	//checks wheather there is more than one argument
 	if(argc>2){
     //filename as argument		
-		if(strncmp(argv[2], "-f",6) == 0){
-			open_file(argv[3], *output);
+		if(strncmp(argv[2], "-f",2) == 0){
+			filename = argv[3];
 		}
-		else{
-    
+		else{    
 			printf("Unsupported parameter [%s]\n",argv[2]);
 			printf("Use random -h for help\n");
 			exit(1);
 		}
-	}
-	else{   
-		printf("Using default file name [%s]\n", FILENAME);
-		open_file(FILENAME, *output);
-	}
-  //make random and write to fil
-printf("%d \n", N);
+	}	
+  //make random number array
 	for(i = 0; i < N ;i++){
-		list[i] = rand();
-		fprintf(output,"%d\n",list[i]);
+		list[i] = rand();		
 	}
+  save_to_file(*list, filename, N);
 	exit(0);
 }
