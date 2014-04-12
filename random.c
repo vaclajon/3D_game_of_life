@@ -10,23 +10,25 @@ void print_help(){
 		exit(0);
 }
 
-void save_to_file(int *array[], char *filename, int N){
+void save_to_file(int array[], char *filename, int N){
   FILE *output;
   int i;
-  file=fopen(filename, "w");
-  if(file == NULL){
+  output=fopen(filename, "w");
+  if(output == NULL){
     printf("Error opening file [%s]", filename);
     exit(1);
   }
+printf("pred forem");
+	printf("%d",array[3]);
   for ( i = 0; i<N;i++){
     fprintf(output,"%d\n",array[i]);
   }
+	fclose(output);
 }
 
 int main(int argc, char *argv[]){
 	srand(time(NULL));
 	int N;
-	int list[N];
 	int i;
   char *filename = "random.txt";	
   
@@ -35,8 +37,7 @@ int main(int argc, char *argv[]){
     print_help();
 	}
   
-  //lenght of array
-	N = atoi(argv[1]);
+
   
 	//checks wheather there is more than one argument
 	if(argc>2){
@@ -50,10 +51,13 @@ int main(int argc, char *argv[]){
 			exit(1);
 		}
 	}	
+	N = atoi(argv[1]);
+	int list[N];
   //make random number array
+	printf("%d\n",N);
 	for(i = 0; i < N ;i++){
-		list[i] = rand();		
+		list[i] = rand();
 	}
-  save_to_file(*list, filename, N);
+  save_to_file(list, filename, N);
 	exit(0);
 }
