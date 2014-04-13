@@ -15,8 +15,8 @@ typedef struct double_queue{
 }double_queue;
 
 void double_queue_create(double_queue *dq){
-	dq = malloc(sizeof(struct double_queue*));	
-	dq->head->value = NULL;
+	dq->head = malloc(sizeof(struct node));	
+	dq->head->value = 0;
 	dq->head->llink = dq->head->rlink = dq->head;
 }
 
@@ -43,9 +43,9 @@ void double_queue_delete(double_queue *dq, node *node)
 void double_queue_add(double_queue *dq, int value)
 {
 	node *next_num;		
-	next_num = malloc(sizeof(struct node*));
+	next_num = malloc(sizeof(struct node));
 	next_num->value = value;	
-	double_queue_add(dq, next_num);
+	double_queue_insert(dq, next_num);
 	
 }
 
