@@ -94,7 +94,9 @@ int check_next_generation(int x, int y, int z, int ***array){
 	}
 	return counter;
 }
-
+void next_state_x(void *index){
+  
+}
 /*
 finds new state for each cell
 */
@@ -175,12 +177,15 @@ int main(void) {
 	/* core part */
 	for (l = 0; l < num_of_steps; l++)
 	{
-		if (l % 2 == 0){
-			next_state(array1, array2);
-		}
-		else{
-			next_state(array2, array1);
-		}
+    for{
+      if (l % 2 == 0){
+			 next_state(array1, array2);
+		  }
+		  else{
+			 next_state(array2, array1);
+		  }
+    }
+		
 	}
 
 	/* set timer and print measured time*/
