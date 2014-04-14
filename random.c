@@ -54,7 +54,7 @@ void print_help(){
 	printf("Its output is two files. Second one has reverse list of number from fisrt one\n");
 	printf("1 -h  Prints help\n\n");
 	printf("2 number [-f filename]  Makes filename and filename_r with [number] random integers.\n");
-	printf("Default names are random.txt and random_r.txt");
+	printf("Default names are random.txt and random_r.txt\n");
 		exit(0);
 }
 
