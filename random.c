@@ -59,7 +59,7 @@ void print_help(){
 	printf("Its output is two files. Second one has reverse list of number from fisrt one\n\n");
 	printf("1 -h  Prints help\n\n");
 	printf("2 number [-f filename]  Makes filename and filename_r with [number] random integers.\n\n");
-	printf("Default names are random.txt and random_r.txt");
+	printf("Default names are random.txt and random_r.txt\n");
 	exit(0);
 }
 /*
@@ -111,7 +111,7 @@ void save_to_file(double_queue *dq, char *filename){
 	rev_output = fopen(rev_filename, "w");
 
 	if (output == NULL || rev_output == NULL){
-		printf("Error opening file [%s] or [%s]", filename, rev_filename);
+		printf("Error opening file [%s] or [%s]\n", filename, rev_filename);
 		exit(1);
 	}	
 	
@@ -150,11 +150,15 @@ int main(int argc, char *argv[]){
 		if (strncmp(argv[2], "-f", 2) == 0){
 			//new filename
 			filename = argv[3];
+			printf("Using filename [%s]\n", filename);
 		}
 		else{
-			printf("Unsupported parameter [%s]\nUse random -h for help\n", argv[2]);			
+			printf("Unsupported parameter [%s]\nUse random -h for help\n", argv[2]);
 			exit(1);
 		}
+	}
+	else{
+		printf("Using default file name [%s]\n", filename);
 	}
 
 	N = atoi(argv[1]);			//lenght of list of random integers
