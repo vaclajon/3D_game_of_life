@@ -10,12 +10,13 @@ typedef struct cell{
 	int num_of_neighbours;	//Number of living neighbour cells 
 	int next_gen_status;	//Next generation flag
 	int x, y, z;			//position in cube
-}cell;
 
-typedef struct list{
+}cell;
+typedef struct change list;
+struct list{
 	cell *cell;
 	list *next;
-}list;
+};
 
 int world_size = 0;
 int D1 = 0;
