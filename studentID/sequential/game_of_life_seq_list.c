@@ -12,12 +12,10 @@ typedef struct cell{
 	int x, y, z;			//position in cube
 }cell;
 
-struct list_r{
+typedef struct list{
 	cell *cell;
-	list_r *next;
-};
-
-typedef struct list_r list;
+	list *next;
+}list;
 
 int world_size = 0;
 int D1 = 0;
@@ -182,7 +180,7 @@ void init_change_list(){
 					}
 				}
 				if (add > 0){
-					current_node = (list *)malloc(sizeof(list));					
+					current_node = (list *)malloc(sizeof(struct list));
 					current_node->cell = &cube[i][j][k];
 					current_node->next = change_list;
 					change_list = current_node;
@@ -257,7 +255,7 @@ void check_next_gen(cell *cell){
 					if (cube[i][j][k].status == 0){
 						if (L1 < cube[i][j][k].num_of_neighbours && cube[i][j][k].num_of_neighbours < L2){
 						//	printf("Adding of node %d %d %d st  %d ns %d\n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours);
-							temp_node = (list *)malloc(sizeof(list));
+							temp_node = (list *)malloc(sizeof(struct list));
 							temp_node->cell = &cube[i][j][k];							
 							temp_node->next = next_change_list;
 							next_change_list = temp_node;
@@ -268,7 +266,7 @@ void check_next_gen(cell *cell){
 					else{
 						if (cube[i][j][k].num_of_neighbours < D1 || cube[i][j][k].num_of_neighbours > D2){
 						//	printf("Adding of node %d %d %d st %d ns %d\n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours);
-							temp_node = (list *)malloc(sizeof(list));
+							temp_node = (list *)malloc(sizeof(struct list));
 							temp_node->cell = &cube[i][j][k];
 							temp_node->next = next_change_list;
 							next_change_list = temp_node;
@@ -316,10 +314,10 @@ int main(void) {
 	int i, j, k;
 	double time;
 	FILE *output;
-	//struct timeval lt, ll;	
+struct timeval lt, ll;	
 
 	/* allocate memory and read input data */
-	read_world("input-100.life");
+	read_world("input.life");
 
 	/* set timer */
 	gettimeofday(&lt, NULL);

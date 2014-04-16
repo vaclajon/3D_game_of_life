@@ -184,6 +184,6 @@ int main(void) {
 	time = (double)(ll.tv_sec - lt.tv_sec) + (double)(ll.tv_usec - lt.tv_usec) / 1000000.0;
 	fprintf(stderr, "Time : %.6lf\n", time);
 	/* write output file */
-
+	print_matricies();
 	return 0;
 }
