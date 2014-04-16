@@ -12,11 +12,11 @@ typedef struct cell{
 	int x, y, z;			//position in cube
 
 }cell;
-typedef struct change list;
-struct list{
+
+typedef struct list{
 	cell *cell;
 	list *next;
-};
+}list;
 
 int world_size = 0;
 int D1 = 0;
