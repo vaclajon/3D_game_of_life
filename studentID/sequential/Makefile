@@ -3,7 +3,7 @@ OBJECTS = game_of_life_seq.o
 test_seq : $(OBJECTS)
 	gcc $(CFLAGS) -o $@ $^
 
-game_of_life_seq.o : game_of_life_seq.c
+game_of_life_seq.o : game_of_life_seq.cpp
 	gcc $(CFLAGS) -c $<
 
 clean:
