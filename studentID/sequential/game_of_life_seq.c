@@ -128,7 +128,7 @@ void next_state(int ***array1, int ***array2){
 	}
 }
 
-void print_matricies(){
+void print_matricies(int ***array){
 	int i, j, k;
 	for (i = 0; i < world_size; i++)
 	{
@@ -137,20 +137,7 @@ void print_matricies(){
 			for (k = 0; k < world_size; k++)
 			{
 
-				printf("%d", array1[i][j][k]);
-			}
-			printf("\n");
-		}
-	}
-	printf("\n");
-	for (i = 0; i < world_size; i++)
-	{
-		for (j = 0; j < world_size; j++)
-		{
-			for (k = 0; k < world_size; k++)
-			{
-
-				printf("%d", array2[i][j][k]);
+				printf("%d", array[i][j][k]);
 			}
 			printf("\n");
 		}
@@ -173,9 +160,11 @@ int main(void) {
 	{
 		if (l % 2 == 0){
 			next_state(array1, array2);
+			print_matricies(array2);
 		}
 		else{
 			next_state(array2, array1);
+			print_matricies(array1);
 		}
 	}
 
@@ -184,6 +173,6 @@ int main(void) {
 	time = (double)(ll.tv_sec - lt.tv_sec) + (double)(ll.tv_usec - lt.tv_usec) / 1000000.0;
 	fprintf(stderr, "Time : %.6lf\n", time);
 	/* write output file */
-	print_matricies();
+	
 	return 0;
 }
