@@ -1,20 +1,20 @@
 #include <stdio.h>
-#include <sys/time.h>
+//#include <sys/time.h>
 #include <string.h>
 #include <stdlib.h>
 
 #define MAXBUF 1024
 
-typedef struct cell{
+typedef struct cells{
 	int status;				//0 dead, 1 living
 	int num_of_neighbours;	//Number of living neighbour cells 
 	int next_gen_status;	//Next generation flag
 	int x, y, z;			//position in cube
 
-}cell;
+}cells;
 
 typedef struct list{
-	cell *cell;
+	cells *cell;
 	list *next;
 }list;
 
@@ -27,7 +27,7 @@ int num_of_steps = 0;
 
 int change_list_size = 0;
 int next_change_list_size = 0;
-cell ***cube;
+cells ***cube;
 list *change_list;
 list *current_node = NULL;
 list *next_change_list = NULL;
@@ -36,7 +36,7 @@ list *next_change_list = NULL;
 /*
 finds number of living neighbors for cell at x,y,z position
 */
-void update_num_of_neighbours(cell *cell, int value){
+void update_num_of_neighbours(cells *cell, int value){
 	int i, j, k;
 	for (i = cell->x - 1; i <= cell->x + 1; i++)
 	{
@@ -81,14 +81,14 @@ void read_world(char* filename){
 	L1 = atoi(strtok(NULL, " "));
 	L2 = atoi(strtok(NULL, " "));
 	num_of_steps = atoi(strtok(NULL, " "));
-	cube = (cell ***)malloc(world_size*sizeof(cell**));
+	cube = (cells ***)malloc(world_size*sizeof(cells**));
 
 
 	//Initial state array allocation
 	for (i = 0; i < world_size; i++) {
-		cube[i] = (cell **)malloc(world_size*sizeof(cell *));
+		cube[i] = (cells **)malloc(world_size*sizeof(cells *));
 		for (j = 0; j < world_size; j++) {
-			cube[i][j] = (cell *)malloc(world_size*sizeof(cell));
+			cube[i][j] = (cells *)malloc(world_size*sizeof(cells));
 			for (k = 0; k < world_size; k++)
 			{
 				cube[i][j][k].num_of_neighbours = 0;
@@ -211,7 +211,7 @@ void print_matricies(){
 
 }
 
-void check_next_gen(cell *cell){
+void check_next_gen(cells *cell){
 	int i, j, k;
 	list *temp_node;
 	//	printf("next gen check %d %d %d\n", cell->x, cell->y, cell->z);
@@ -313,14 +313,14 @@ int main(void) {
 	int i, j, k;
 	double time;
 	FILE *output;
-	struct timeval lt, ll;
+//	struct timeval lt, ll;
 
 	/* allocate memory and read input data */
 	//read_world("input.life");
 	read_world("input-100.life");
 
 	/* set timer */
-	gettimeofday(&lt, NULL);
+//	gettimeofday(&lt, NULL);
 
 	/* core part */
 	init_change_list();
@@ -333,8 +333,8 @@ int main(void) {
 	}
 
 	/* set timer and print measured time*/
-	gettimeofday(&ll, NULL);
-	time = (double)(ll.tv_sec - lt.tv_sec) + (double)(ll.tv_usec - lt.tv_usec) / 1000000.0;
+//	gettimeofday(&ll, NULL);
+	//time = (double)(ll.tv_sec - lt.tv_sec) + (double)(ll.tv_usec - lt.tv_usec) / 1000000.0;
 	fprintf(stderr, "Time : %.6lf\n", time);
 	/* write output file */
 	output = fopen("output_user.life", "w");
