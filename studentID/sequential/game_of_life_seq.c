@@ -32,6 +32,10 @@ list *change_list;
 list *current_node = NULL;
 list *next_change_list = NULL;
 
+int sum = 0;
+
+
+
 
 /*
 finds number of living neighbors for cell at x,y,z position
@@ -54,7 +58,9 @@ void update_num_of_neighbours(cells *cell, int value){
 					continue;
 				}
 				if (!(i == cell->x && j == cell->y && k == cell->z)){
-					cube[i][j][k].num_of_neighbours = cube[i][j][k].num_of_neighbours + value;
+					cube[i][j][k].num_of_neighbours += value;
+					sum += value;
+					
 				}
 
 			}
@@ -231,7 +237,7 @@ void check_next_gen(cells *cell){
 					continue;
 				}
 				if (cube[i][j][k].next_gen_status == 0){
-					if (cube[i][j][k].status == 0){
+					if (cube[i][j][k].status == 0){						
 						if (L1 < cube[i][j][k].num_of_neighbours && cube[i][j][k].num_of_neighbours < L2){
 							//	printf("Adding of node %d %d %d st  %d ns %d l1 %d l2 %d\n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours, L1,L2);
 							temp_node = (list *)malloc(sizeof(struct list));
@@ -264,7 +270,6 @@ void check_next_gen(cells *cell){
 		}
 	}
 }
-
 void next_generation(){
 	int i, j, k;
 	current_node = change_list;
@@ -272,8 +277,16 @@ void next_generation(){
 	{
 		current_node->cell->next_gen_status = 0;
 		update_num_of_neighbours(current_node->cell, current_node->cell->status == 0 ? 1 : -1);
-		current_node->cell->status = current_node->cell->status == 0 ? 1 : 0;
-		list *l = current_node;
+		if (current_node->cell->status == 0){
+			current_node->cell->status = 1;
+			
+		}
+		else{
+			current_node->cell->status = 0;
+			
+		}
+		//current_node->cell->status = current_node->cell->status == 0 ? 1 : 0;
+	//	list *l = current_node;
 		/*while (l)
 		{
 		printf("print list %d %d %d %d %d\n", l->cell->x, l->cell->y, l->cell->z, l->cell->status, l->cell->num_of_neighbours);
@@ -283,8 +296,9 @@ void next_generation(){
 
 		//	printf("\n");
 	}
-
+	
 	current_node = change_list;
+	int check = 0;
 	for (i = 0; i < change_list_size; i++)
 	{
 		//	printf("node in list %d %d %d status %d  next %d", current_node->cell->x, current_node->cell->y, current_node->cell->z,current_node->cell->status, current_node->cell->next_gen_status);
@@ -295,10 +309,11 @@ void next_generation(){
 		else{
 		current_node->cell->status = 0;
 		}*/
+		check++;
 		check_next_gen(current_node->cell);
 		current_node = current_node->next;
 	}
-
+	printf("pocet zmen %d check %d, sum %d\n", change_list_size, check,sum);
 	current_node = change_list;
 	//print_lists();
 	change_list = next_change_list;
@@ -324,11 +339,12 @@ int main(void) {
 
 	/* core part */
 	init_change_list();
+	sum = 0;
 	for (i = 0; i < num_of_steps; i++)
 	{
 		next_generation();
 		printf("Pruchod cislo %d\n", i);
-		//print_matricies();
+	//	print_matricies();
 
 	}
 
@@ -351,7 +367,7 @@ int main(void) {
 			fprintf(output, "\n");
 		}
 	}
-	printf("%d %d", cube[0][0][2].num_of_neighbours, cube[0][0][2]);
+	printf("%d", cube[1][4][1].num_of_neighbours, cube[1][4][1].status);
 	fclose(output);
 	//print_matricies();
 	return 0;
