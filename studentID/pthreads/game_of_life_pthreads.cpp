@@ -20,8 +20,6 @@ typedef struct list{
 	list *next;
 }list;
 
-int enter = 0;
-
 int world_size = 0;
 int D1 = 0;
 int D2 = 0;
@@ -35,13 +33,13 @@ int next_change_list_size = 0;
 
 cells ***cube;
 list *change_list;
-list *current_node = NULL;
 list *next_change_list = NULL;
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t test_mutex = PTHREAD_MUTEX_INITIALIZER;
-long size_to_handle;
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutexattr_t attr;
 
+
+long size_to_handle;
 
 /*
 finds number of living neighbors for cell at x,y,z position
@@ -64,9 +62,10 @@ void update_num_of_neighbours(cells *cell, int value){
 					continue;
 				}
 				if (!(i == cell->x && j == cell->y && k == cell->z)){
-					pthread_mutex_lock(&mutex);
+					pthread_mutex_lock(&lock);
 					cube[i][j][k].num_of_neighbours = cube[i][j][k].num_of_neighbours + value;
-					pthread_mutex_unlock(&mutex);
+					pthread_mutex_unlock(&lock);
+
 				}
 
 			}
@@ -142,7 +141,8 @@ void read_world(char* filename){
 
 void init_change_list(){
 	int i, j, k;
-	int add = 0;
+	int add = 0;				//0 no write to change array, 1 write to array
+	list *current_node;
 
 	for (i = 0; i < world_size; i++)
 	{
@@ -162,18 +162,12 @@ void init_change_list(){
 				}
 				if (add > 0){
 					current_node = (list *)malloc(sizeof(struct list));
-					//	printf("Adding of node %d %d %d st  %d ns %d\n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours);
-					if (i == 0 && j == 0 && k == 2){
-						printf("%d", i);
-					}
+					//	printf("Adding of node %d %d %d st  %d ns %d\n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours);					
 					current_node->cell = &cube[i][j][k];
 					current_node->next = change_list;
 					change_list = current_node;
 					cube[i][j][k].next_gen_status = 1;
 					change_list_size++;
-					if (i == 0 && j == 0 && k == 2){
-						printf("%d %d %d\n", 0, 0, cube[i][j][k].next_gen_status);
-					}
 					add--;
 				}
 			}
@@ -188,9 +182,9 @@ void print_lists(){
 	list *l = change_list;
 	for (i = 0; i < change_list_size; i++)
 	{
-		
+		if (l->cell->x == 0 && l->cell->y == 0 && l->cell->z == 2){
 			printf("print list %d %d %d %d %d\n", l->cell->x, l->cell->y, l->cell->z, l->cell->status, l->cell->num_of_neighbours);
-		
+		}
 		l = l->next;
 
 
@@ -224,7 +218,7 @@ void print_matricies(){
 
 }
 
-void check_next_gen(cells *cell){
+int check_next_gen(cells *cell, int next_change_list_size){
 	int i, j, k;
 	list *temp_node;
 	//	printf("next gen check %d %d %d\n", cell->x, cell->y, cell->z);
@@ -243,192 +237,180 @@ void check_next_gen(cells *cell){
 				if (k < 0 || k > world_size - 1){
 					continue;
 				}
-				pthread_mutex_lock(&mutex);
-				if (i == 0 && j == 3 && k == 66){
-					printf("%d", cube[i][j][k].status);
-				}
 				if (cube[i][j][k].next_gen_status == 0){
 					if (cube[i][j][k].status == 0){
-						enter++;
-						if (L1 < cube[i][j][k].num_of_neighbours & cube[i][j][k].num_of_neighbours < L2){
+						if (L1 < cube[i][j][k].num_of_neighbours && cube[i][j][k].num_of_neighbours < L2){
 							//	printf("Adding of node %d %d %d st  %d ns %d l1 %d l2 %d\n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours, L1,L2);
 							temp_node = (list *)malloc(sizeof(struct list));
 							if (temp_node == NULL){
 								printf("neni misto");
 							}
+							pthread_mutex_lock(&lock);
 							temp_node->cell = &cube[i][j][k];
 							temp_node->next = next_change_list;
 							next_change_list = temp_node;
 							cube[i][j][k].next_gen_status = 1;
 							next_change_list_size++;
-							
-							
-							
+							pthread_mutex_unlock(&lock);
 						}
 					}
 					else{
-						if (cube[i][j][k].num_of_neighbours < D1 | cube[i][j][k].num_of_neighbours > D2){
+						if (cube[i][j][k].num_of_neighbours < D1 || cube[i][j][k].num_of_neighbours > D2){
 							//	printf("Adding of node %d %d %d st %d ns %d d1 %d d2 %d \n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours, D1, D2);
 							temp_node = (list *)malloc(sizeof(struct list));
 							if (temp_node == NULL){
 								printf("neni misto");
 							}
+							pthread_mutex_lock(&lock);
 							temp_node->cell = &cube[i][j][k];
 							temp_node->next = next_change_list;
 							next_change_list = temp_node;
 							cube[i][j][k].next_gen_status = 1;
 							next_change_list_size++;
-							
-							
-							
+							pthread_mutex_unlock(&lock);
 						}
 					}
 				}
-				pthread_mutex_unlock(&mutex);
 			}
 		}
 	}
+	return next_change_list_size;
 }
-int live = 0;
-int dead = 0;
-void *update_from_change_list(void* node_r){
+
+void *next_generation(void *rank){
 	int count = 0;
-	list *node = (list *)node_r;
-	
+	list *node = (list*)rank;
+
 	while (node && count < size_to_handle)
 	{
-	//	printf("update_from_change_list %d %d %d %d %d\n", node->cell->x, node->cell->y, node->cell->z, node->cell->status, node->cell->num_of_neighbours);
+		node->cell->next_gen_status = 0;
 		update_num_of_neighbours(node->cell, node->cell->status == 0 ? 1 : -1);
-		pthread_mutex_lock(&test_mutex);
-		if (node->cell->status == 0){
-			node->cell->status = 1;
-			live++;
-		}
-		else{
-			node->cell->status = 0;
-			dead++;
-		}
-		pthread_mutex_unlock(&test_mutex);
-		//node->cell->status = node->cell->status == 0 ? 1 : 0;
-		//list *l = current_node;
-		/*while (l)
-		{
-		printf("print list %d %d %d %d %d\n", l->cell->x, l->cell->y, l->cell->z, l->cell->status, l->cell->num_of_neighbours);
-		l = l->next;
-		}*/
-		node = node->next;
+		//	printf("next generation first loop %d %d %d\n", node->cell->x, node->cell->y, node->cell->z);
+		pthread_mutex_lock(&lock);
+		node->cell->status = node->cell->status == 0 ? 1 : 0;
+		pthread_mutex_unlock(&lock);
 		count++;
-
-		//	printf("\n");
+		node = node->next;
 	}
 	return NULL;
 }
-void *check_next_gen_t(void *node_r){
+
+
+
+
+void *next_change_list_cr(void *rank){
+	list *node = (list*)rank;
 	int count = 0;
-	list *node = (list *)node_r;
-	while (node && count <size_to_handle)
+	int local_next = 0;
+	while (node&& count < size_to_handle)
 	{
-		//	printf("node in list %d %d %d status %d  next %d", current_node->cell->x, current_node->cell->y, current_node->cell->z,current_node->cell->status, current_node->cell->next_gen_status);
-		/*
-		if (current_node->cell->status == 0){
-		current_node->cell->status = 1;
+		//local_next = check_next_gen(node->cell, local_next);
+		int i, j, k;
+		list *temp_node;
+		//	printf("next gen check %d %d %d\n", cell->x, cell->y, cell->z);		
+		for (i = node->cell->x - 1; i <= node->cell->x + 1; i++){
+			if (i < 0 || i > world_size - 1){ continue; }
+			for (j = node->cell->y - 1; j <= node->cell->y + 1; j++){
+				if (j < 0 || j > world_size - 1){ continue; }
+				for (k = node->cell->z - 1; k <= node->cell->z + 1; k++){
+					if (k < 0 || k > world_size - 1){ continue; }
+					pthread_mutex_lock(&lock);
+					if (cube[i][j][k].next_gen_status == 0){
+						if (cube[i][j][k].status == 0){
+							if (L1 < cube[i][j][k].num_of_neighbours && cube[i][j][k].num_of_neighbours < L2){
+								//	printf("Adding of node %d %d %d st  %d ns %d l1 %d l2 %d\n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours, L1,L2);
+								temp_node = (list *)malloc(sizeof(struct list));
+								temp_node->cell = &cube[i][j][k];
+								temp_node->next = next_change_list;
+								next_change_list = temp_node;
+								cube[i][j][k].next_gen_status = 1;
+								next_change_list_size++;
+								pthread_mutex_unlock(&lock);
+							}
+						}
+						else{
+							if (cube[i][j][k].num_of_neighbours < D1 || cube[i][j][k].num_of_neighbours > D2){
+								//	printf("Adding of node %d %d %d st %d ns %d d1 %d d2 %d \n", cube[i][j][k].x, cube[i][j][k].y, cube[i][j][k].z, cube[i][j][k].status, cube[i][j][k].num_of_neighbours, D1, D2);
+								temp_node = (list *)malloc(sizeof(struct list));
+								temp_node->cell = &cube[i][j][k];
+								pthread_mutex_lock(&lock);
+								temp_node->next = next_change_list;
+								next_change_list = temp_node;
+								cube[i][j][k].next_gen_status = 1;
+								next_change_list_size++;
+								pthread_mutex_unlock(&lock);
+							}
+						}
+					}
+					pthread_mutex_unlock(&lock);
+				}
+			}
 		}
-		else{
-		current_node->cell->status = 0;
-		}*/
-	
-		check_next_gen(node->cell);		
+
 		node = node->next;
 		count++;
 	}
-	//print_lists();
-	//	printf("\n");
+	//	printf("pocet zmen %d local info %d \n", change_list_size, local_next);
 
-
+	//print_lists();			
 	return NULL;
 }
-void next_generation(){
-	int i, j, k;
-	current_node = change_list;
-	for (i = 0; i < change_list_size; i++)
-	{
-		current_node->cell->next_gen_status = 0;
-		update_num_of_neighbours(current_node->cell, current_node->cell->status == 0 ? 1 : -1);
-		current_node->cell->status = current_node->cell->status == 0 ? 1 : 0;
-		list *l = current_node;
-		/*while (l)
-		{
-		printf("print list %d %d %d %d %d\n", l->cell->x, l->cell->y, l->cell->z, l->cell->status, l->cell->num_of_neighbours);
-		l = l->next;
-		}*/
-		current_node = current_node->next;
 
-		//	printf("\n");
-	}
 
-	current_node = change_list;
-	for (i = 0; i < change_list_size; i++)
-	{
-		//	printf("node in list %d %d %d status %d  next %d", current_node->cell->x, current_node->cell->y, current_node->cell->z,current_node->cell->status, current_node->cell->next_gen_status);
-		/*
-		if (current_node->cell->status == 0){
-		current_node->cell->status = 1;
-		}
-		else{
-		current_node->cell->status = 0;
-		}*/
-		check_next_gen(current_node->cell);
-		current_node = current_node->next;
-	}
 
-	current_node = change_list;
-	//print_lists();
-	change_list = next_change_list;
-	current_node = next_change_list;
-	//	printf("\n");
-	change_list_size = next_change_list_size;
-	next_change_list_size = 0;
-	next_change_list = NULL;
 
-}
+
 
 int main(void) {
-	int i, j, k;
+	int i, j, k, count;					//i,j,k writing to file. Count traverse in change_list_array
 	double time;
 	FILE *output;
-	long thread, thread_c =0;
+	long thread, thread_c = 0;
 	pthread_t *thread_handles;
-	struct timeval lt, ll;
+	list * node;
+		struct timeval lt, ll;
+
+
+	//Muttex init
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&lock, &attr);
+
+	//Thread init
+	thread_handles = (pthread_t *)malloc(num_of_threads*sizeof(pthread_t));
+
+
 
 	/* allocate memory and read input data */
-	//read_world("input.life");
-	read_world("input-10.life");
-	thread_handles = (pthread_t *)malloc(num_of_threads*sizeof(pthread_t));
+	read_world("input-100.life");
+	
+
 	/* set timer */
-	gettimeofday(&lt, NULL);
+		gettimeofday(&lt, NULL);
 
 	/* core part */
 	init_change_list();
-
 	for (i = 0; i < num_of_steps; i++)
 	{
-		size_to_handle = round((float)change_list_size / num_of_threads);
-		list * current_node_p = (list *)malloc(sizeof(list));
-		current_node_p = change_list;
-	//	print_lists();
+
+		size_to_handle = 1 + ((change_list_size - 1) / num_of_threads);
+		//	printf("size to handle %d\n", size_to_handle);
+		node = change_list;
 		for (thread = 0; thread < num_of_threads; thread++)
-		{				
-			pthread_create(&thread_handles[thread], NULL, update_from_change_list, (void *)current_node_p);
-		//	printf("entering with node %d %d %d\n", current_node_p->cell->x, current_node_p->cell->y, current_node_p->cell->z);
+		{
+			pthread_create(&thread_handles[thread], NULL, next_generation, (void *)node);
+			//		printf("entering with node %d %d %d\n", node->cell->x, node->cell->y, node->cell->z);
 			thread_c++;
-		//	printf("%d %d %d\n", current_node_p->cell->x, current_node_p->cell->y, current_node_p->cell->z);
-			int count = 0;
-			while (current_node_p && count < size_to_handle)
+			//	printf("%d %d %d\n", current_node_p->cell->x, current_node_p->cell->y, current_node_p->cell->z);
+			count = 0;
+
+
+			while (node && count < size_to_handle)
 			{
-				current_node_p = current_node_p->next;
+				node = node->next;
 				count++;
 			}
-			if (current_node_p == NULL){
+			if (node == NULL){
 				break;
 			}
 		}
@@ -437,49 +419,45 @@ int main(void) {
 			pthread_join(thread_handles[thread], NULL);
 		}
 		thread_c = 0;
-	//	print_lists();
-		current_node_p = change_list;
-		thread = 0;
+		node = change_list;
 		for (thread = 0; thread < num_of_threads; thread++)
 		{
-			pthread_create(&thread_handles[thread], NULL, check_next_gen_t, (void *)current_node_p);
-	//		printf("entering with node %d %d %d\n", current_node_p->cell->x, current_node_p->cell->y, current_node_p->cell->z);
+			pthread_create(&thread_handles[thread], NULL, next_change_list_cr, (void *)node);
 			thread_c++;
 			int count = 0;
-			while (current_node_p && count < size_to_handle)
+			while (node && count < size_to_handle)
 			{
-				current_node_p = current_node_p->next;
+				node = node->next;
 				count++;
 			}
-			if (current_node_p == NULL){
+			if (node == NULL){
 				break;
 			}
 		}
+
 		for (thread = 0; thread < thread_c; thread++)
 		{
 			pthread_join(thread_handles[thread], NULL);
 		}
 		thread_c = 0;
-		printf("Pruchod cislo %d, pocet zmen %d , dead %d, live %d\n", i, change_list_size, dead, live);
+		//	printf("checkcall %d totam sum %d\n", check_call,total_sum);
 		change_list = next_change_list;
-		current_node = next_change_list;
-		//	printf("\n");
 		change_list_size = next_change_list_size;
 		next_change_list_size = 0;
 		next_change_list = NULL;
-	//	print_lists();
+
 		//next_generation();
-		
-		print_matricies();
+		printf("Pruchod cislo %d\n", i);
+		//	print_matricies();
 
 	}
 
 	/* set timer and print measured time*/
-	gettimeofday(&ll, NULL);
+		gettimeofday(&ll, NULL);
 	time = (double)(ll.tv_sec - lt.tv_sec) + (double)(ll.tv_usec - lt.tv_usec) / 1000000.0;
 	fprintf(stderr, "Time : %.6lf\n", time);
 	/* write output file */
-	output = fopen("output_user_p.life", "w");
+	output = fopen("output_user.life", "w");
 	fprintf(output, "%d %d %d %d %d %d %d\n", world_size, D1, D2, L1, L2, num_of_steps, num_of_threads);
 	for (i = 0; i < world_size; i++)
 	{
@@ -493,9 +471,8 @@ int main(void) {
 			fprintf(output, "\n");
 		}
 	}
-
+	//	printf("%d %d", cube[1][4][1].num_of_neighbours, cube[1][4][1].status);
 	fclose(output);
-	printf("%d %d", cube[1][4][1].num_of_neighbours, cube[1][4][1].status);
 	//print_matricies();
 	return 0;
 }
