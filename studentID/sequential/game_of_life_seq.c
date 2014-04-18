@@ -371,4 +371,6 @@ int main(void) {
 	fclose(output);
 	//print_matricies();
 	return 0;
+  
+  
 }
