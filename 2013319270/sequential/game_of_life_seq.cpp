@@ -62,7 +62,6 @@ void read_world(){
 	buffer = (char *)malloc(sizeof(char)* MAXBUF);	
 	fgets(buffer, MAXBUF, stdin);
 
-	printf("%s", buffer);
 	world_size = atoi(strtok(buffer, " "));
 	D1 = atoi(strtok(NULL, " "));
 	D2 = atoi(strtok(NULL, " "));

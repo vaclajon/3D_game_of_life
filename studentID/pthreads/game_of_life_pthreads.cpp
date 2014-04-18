@@ -207,7 +207,7 @@ void print_matricies(){
 Update next generation state and num of neightbours in next state
 */
 void *next_generation(void *rank){
-	int my_rank = (int)rank;
+	long my_rank = (long)rank;
 	int cell, my_first, my_last;
 	my_first = my_rank*size_to_handle;
 	my_last = my_first + size_to_handle > change_list_size ? change_list_size : my_first + size_to_handle;
@@ -236,7 +236,7 @@ void *next_generation(void *rank){
 Create next generation change list
 */
 void *next_change_list_cr(void *rank){
-	int my_rank = (int)rank;
+	long my_rank = (long)rank;
 	int my_first, my_last, cell;
 	int i, j, k;
 	my_first = my_rank*size_to_handle;

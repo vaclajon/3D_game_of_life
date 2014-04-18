@@ -129,8 +129,6 @@ void save_to_file(double_queue *dq, char *filename){
 	fclose(rev_output);
 }
 
-
-
 int main(int argc, char *argv[]){	
 	int N, i;
 	double_queue list;					//stores random numbers
